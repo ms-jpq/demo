@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Index POC</title>
+    <link rel="stylesheet" href="./main.css" />
+    <script src="./main.js" defer></script>
+  </head>
+  <body>
+    <aside>
+      <div>
+        <label for="pages_input">
+          Pages:
+          <input
+            id="pages_input"
+            type="range"
+            min="1"
+            max="50"
+            value="1"
+            onchange="on_pages()"
+          />
+        </label>
+        <output id="pages_output" for="pages_input">1</output>
+      </div>
+      <div>
+        <label for="skew_input">
+          Skew:
+          <input
+            id="skew_input"
+            type="range"
+            min="0"
+            max="100"
+            value="50"
+            onchange="on_skew()"
+          />
+        </label>
+        <output id="skew_output" for="skew_input">50</output>
+      </div>
+    </aside>
+    <main><div></div></main>
+  </body>
+</html>

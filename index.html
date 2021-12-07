@@ -15,14 +15,30 @@
           <input
             id="pages_input"
             type="range"
-            min="1"
-            max="50"
-            value="1"
+            min="0"
+            max="100"
+            value="0"
             onchange="on_pages()"
             oninput="on_pages()"
           />
         </label>
-        <output id="pages_output" for="pages_input">1</output>
+        <output id="pages_output" for="pages_input">0</output>
+      </div>
+      <div>
+        <label for="hidden_size_input">
+          Hide:
+          <input
+            id="hidden_size_input"
+            type="range"
+            step="0.0001"
+            min="0"
+            max="0.003"
+            value="0"
+            onchange="on_update()"
+            oninput="on_update()"
+          />
+        </label>
+        <output id="hidden_size_output" for="hidden_size_input">0</output>
       </div>
       <div>
         <label for="spread_input">
@@ -41,6 +57,22 @@
         <output id="spread_output" for="spread_input">10</output>
       </div>
       <div>
+        <label for="centre_input">
+          Centre:
+          <input
+            id="centre_input"
+            type="range"
+            step="0.001"
+            min="-12"
+            max="12"
+            value="0"
+            onchange="on_update()"
+            oninput="on_update()"
+          />
+        </label>
+        <output id="centre_output" for="spread_input">0</output>
+      </div>
+      <div>
         <label for="skew_input">
           Skew:
           <input
@@ -57,6 +89,6 @@
         <output id="skew_output" for="skew_input">0</output>
       </div>
     </aside>
-    <main><div></div></main>
+    <main></main>
   </body>
 </html>

@@ -19,6 +19,7 @@
             max="50"
             value="1"
             onchange="on_pages()"
+            oninput="on_pages()"
           />
         </label>
         <output id="pages_output" for="pages_input">1</output>
@@ -33,6 +34,7 @@
             max="20"
             value="10"
             onchange="on_update()"
+            oninput="on_update()"
           />
         </label>
         <output id="spread_output" for="spread_input">10</output>
@@ -43,10 +45,12 @@
           <input
             id="skew_input"
             type="range"
+            step="0.1"
             min="-10"
             max="10"
             value="0"
             onchange="on_update()"
+            oninput="on_update()"
           />
         </label>
         <output id="skew_output" for="skew_input">0</output>

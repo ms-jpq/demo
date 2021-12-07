@@ -1,3 +1,4 @@
+var time;
 const main = document.querySelector("main");
 
 const pages_input = document.querySelector("#pages_input");
@@ -47,13 +48,10 @@ const integrate = (fn, steps) => (lo, hi) => {
 };
 
 /**
- * @param {number} x
+ * @param {number} n
  * @return {number}
  */
-const erf = (n) => {
-  const sign = n >= 0 ? 1 : -1;
-  const x = Math.abs(n);
-
+const erf = (() => {
   const p = 0.3275911;
   const a1 = 0.254829592;
   const a2 = -0.284496736;
@@ -61,11 +59,16 @@ const erf = (n) => {
   const a4 = -1.453152027;
   const a5 = 1.061405429;
 
-  const t = 1 / (1 + p * x);
-  const y =
-    1 - ((((a5 * t + a4) * t + a3) * t + a2) * t + a1) * t * Math.exp(-x * x);
-  return sign * y;
-};
+  return (n) => {
+    const sign = n >= 0 ? 1 : -1;
+    const x = Math.abs(n);
+
+    const t = 1 / (1 + p * x);
+    const y =
+      1 - ((((a5 * t + a4) * t + a3) * t + a2) * t + a1) * t * Math.exp(-x * x);
+    return sign * y;
+  };
+})();
 
 /**
  * @param {number} mu
@@ -104,14 +107,20 @@ const calc = function* ({ steps, slices, spread, skew }) {
 
 const on_update = () => {
   const slices = main.childElementCount;
-  const spread = parseInt(spread_input.value);
+  const spread = parseFloat(spread_input.value);
   const skew = parseFloat(skew_input.value);
   spread_output.value = spread;
   skew_output.value = skew;
 
-  main.style.gridTemplateColumns = [
-    ...calc({ steps: 10, slices, spread, skew }),
-  ].join(" ");
+  if (time) {
+    console.time("MATH");
+  }
+  const cols = [...calc({ steps: 10, slices, spread, skew })].join(" ");
+  if (time) {
+    console.timeEnd("MATH");
+  }
+
+  main.style.gridTemplateColumns = cols;
 };
 
 const on_pages = () => {

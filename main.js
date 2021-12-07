@@ -105,7 +105,7 @@ const calc = function* ({ steps, slices, spread, skew }) {
 const on_update = () => {
   const slices = main.childElementCount;
   const spread = parseInt(spread_input.value);
-  const skew = parseInt(skew_input.value);
+  const skew = parseFloat(skew_input.value);
   spread_output.value = spread;
   skew_output.value = skew;
 

@@ -3,30 +3,38 @@ const main = document.querySelector("main");
 const pages_input = document.querySelector("#pages_input");
 const pages_output = document.querySelector("#pages_output");
 
+const spread_input = document.querySelector("#spread_input");
+const spread_output = document.querySelector("#spread_output");
+
 const skew_input = document.querySelector("#skew_input");
 const skew_output = document.querySelector("#skew_output");
 
 /**
- * Verified
+ * @param {number} lo
+ * @param {number} hi
+ * @return {(slices: number) => IterableIterator<number>}
  */
-const intervals = function* (slices) {
-  const points = [
-    ...(function* () {
-      yield 0;
-      for (let i = 1; i < slices; i++) {
-        yield (1 / slices) * i;
-      }
-      yield 1;
-    })(),
-  ];
-  for (let i = 0; i < slices; i++) {
-    yield [points[i], points[i + 1]];
-  }
-};
+const intervals = (lo, hi) =>
+  function* (slices) {
+    const points = [
+      ...(function* () {
+        const step = (hi - lo) / slices;
+        yield lo;
+        for (let i = 1; i < slices; i++) {
+          yield lo + step * i;
+        }
+        yield hi;
+      })(),
+    ];
+    for (let i = 0; i < slices; i++) {
+      yield [points[i], points[i + 1]];
+    }
+  };
 
 /**
- * Midpoint integration
- * Verified
+ * @param {(x: number) => number} fn
+ * @param {number} steps
+ * @return {(lo: number, hi: number) => number}
  */
 const integrate = (fn, steps) => (lo, hi) => {
   let sum = 0;
@@ -39,34 +47,71 @@ const integrate = (fn, steps) => (lo, hi) => {
 };
 
 /**
- * Norm PDF
- *
- * Verified
+ * @param {number} x
+ * @return {number}
  */
-const pdf = (mu, sigma) => {
-  const lhs = 1 / (sigma * Math.sqrt(2 * Math.PI));
-  return (x) => {
+const erf = (n) => {
+  const sign = n >= 0 ? 1 : -1;
+  const x = Math.abs(n);
+
+  const p = 0.3275911;
+  const a1 = 0.254829592;
+  const a2 = -0.284496736;
+  const a3 = 1.421413741;
+  const a4 = -1.453152027;
+  const a5 = 1.061405429;
+
+  const t = 1 / (1 + p * x);
+  const y =
+    1 - ((((a5 * t + a4) * t + a3) * t + a2) * t + a1) * t * Math.exp(-x * x);
+  return sign * y;
+};
+
+/**
+ * @param {number} mu
+ * @param {number} sigma
+ * @return {{ pdf: (x: number) => number, cdf: (x: number) => number }}
+ */
+const norm = (mu = 0, sigma = 1) => {
+  const pdf = (x) => {
+    const lhs = 1 / (sigma * Math.sqrt(2 * Math.PI));
     const exp = -(1 / 2) * Math.pow((x - mu) / sigma, 2);
     const rhs = Math.pow(Math.E, exp);
     return lhs * rhs;
   };
+  const cdf = (x) => {
+    return (1 / 2) * (1 + erf((x - mu) / (sigma * Math.sqrt(2))));
+  };
+  return { pdf, cdf };
 };
 
-const calc = function* (slices) {
-  //console.group("CALC");
-  for (const [lo, hi] of intervals(slices)) {
-    const ratio = cdf(hi) - cdf(lo);
-    const approx = Math.round(ratio * 1000);
-    yield `${approx}fr`;
+/**
+ * @param {number} alpha
+ * @return {(x: number) => number}
+ */
+const skewed_norm_pdf = (alpha = 0) => {
+  const { pdf, cdf } = norm();
+  return (x) => 2 * pdf(x) * cdf(alpha * x);
+};
+
+const calc = function* ({ steps, slices, spread, skew }) {
+  const pdf = skewed_norm_pdf(skew);
+  for (const [lo, hi] of intervals(-spread, spread)(slices)) {
+    const ratio = integrate(pdf, steps)(lo, hi);
+    yield `${ratio}fr`;
   }
-  //console.groupEnd("CALC");
 };
 
-const on_skew = () => {
+const on_update = () => {
   const slices = main.childElementCount;
+  const spread = parseInt(spread_input.value);
   const skew = parseInt(skew_input.value);
+  spread_output.value = spread;
   skew_output.value = skew;
-  main.style.gridTemplateColumns = [...calc(slices)].join(" ");
+
+  main.style.gridTemplateColumns = [
+    ...calc({ steps: 10, slices, spread, skew }),
+  ].join(" ");
 };
 
 const on_pages = () => {
@@ -81,5 +126,5 @@ const on_pages = () => {
     })()
   );
 
-  on_skew();
+  on_update();
 };

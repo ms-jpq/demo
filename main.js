@@ -1,4 +1,4 @@
-import { calc } from "./projection.js";
+import { projection } from "./projection.js";
 
 var time;
 const main = document.querySelector("main");
@@ -24,7 +24,7 @@ const on_update = () => {
   centre_output.value = centre;
   spread_output.value = spread;
 
-  const cols = [...calc({ slices, centre, spread, skew: 0 })];
+  const cols = [...projection({ slices, centre, spread, skew: 0 })];
   const css = [
     ...(function* () {
       for (let i = 0; i < main.children.length; i++) {
@@ -43,7 +43,8 @@ const on_update = () => {
   main.style.gridTemplateColumns = css;
 };
 
-const on_pages = () => {
+
+globalThis.on_pages = () => {
   const pages = parseInt(pages_input.value);
   pages_output.value = pages;
 

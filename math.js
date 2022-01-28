@@ -124,3 +124,15 @@ export const erf_inv = (() => {
     }
   };
 })();
+
+/**
+ * Logit fn centred at 0, asymptotically approaching (-1, 1)
+ *
+ * @param {number} x
+ * @return {number}
+ */
+export const centered_n_scaled_logit_0_1 = (x) => {
+  const z = x / 2 + 1 / 2;
+  const y = Math.log(z / (1 - z));
+  return y;
+};

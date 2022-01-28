@@ -1,17 +1,35 @@
-import { norm, skewed_norm_pdf } from "./stats.js"
+import { centered_n_scaled_logit_0_1 } from "./math.js";
+import { norm, skewed_norm_pdf } from "./stats.js";
 
 /**
- * @param {{ slices: number, scroll_pos: number }}
- *
+ * @param {{ slices: number, cursor: number }}
  */
-export const calc = function* ({ slices, scroll_pos }) {
-  const { pdf } = dist = norm(mu, 1);
-  const skewed_pdf = skewed_norm_pdf(dist, alpha);
+export const projection = function* ({ slices, cursor }) {
+  if (cursor < 0 || cursor > 1) {
+    throw new Error();
+  } else {
+    /* roughly speaking, the projection is the [relative ratios]
+     * of a uniformly divided [n slices] applied to a skewed normal distribution
+     *
+     */
+    const naive_dist = norm(cursor, 1);
 
-  const boundary = slices + 1;
+    const { inv_cdf } = naive_dist;
+    const boundary = inv_cdf(1 - 1 / slices);
 
-  for (const [lo, hi] of bounds(-boundary, boundary)(slices)) {
-    yield integrate(pdf, 10)(lo, hi);
+    // skew of the distribution, eased using the logit fn
+    // Magic number [5] is added to increase the rate of asymptotic convergency
+    const alpha = centered_n_scaled_logit_0_1(cursor) / 5;
+
+    const skewed_pdf = skewed_norm_pdf(naive_dist, alpha);
+
+    for (const [lo, hi] of bounds(-boundary, boundary)(slices)) {
+      yield integrate(skewed_pdf, 2)(lo, hi);
+    }
   }
 };
 
+/**
+ * @param {{ slices: number, index: number }}
+ */
+export const projection_inv = ({ slices, index }) => index / slices;

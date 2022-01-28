@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Index POC</title>
     <link rel="stylesheet" href="./main.css" />
-    <script defer src="./main.js"></script>
+    <script type="module" src="./main.js"></script>
   </head>
   <body>
     <aside>
@@ -41,22 +41,6 @@
         <output id="hidden_size_output" for="hidden_size_input">0</output>
       </div>
       <div>
-        <label for="spread_input">
-          Spread:
-          <input
-            id="spread_input"
-            type="range"
-            step="0.001"
-            min="3"
-            max="20"
-            value="10"
-            onchange="on_update()"
-            oninput="on_update()"
-          />
-        </label>
-        <output id="spread_output" for="spread_input">10</output>
-      </div>
-      <div>
         <label for="centre_input">
           Centre:
           <input
@@ -71,22 +55,6 @@
           />
         </label>
         <output id="centre_output" for="spread_input">0</output>
-      </div>
-      <div>
-        <label for="skew_input">
-          Skew:
-          <input
-            id="skew_input"
-            type="range"
-            step="0.001"
-            min="-1"
-            max="1"
-            value="0"
-            onchange="on_update()"
-            oninput="on_update()"
-          />
-        </label>
-        <output id="skew_output" for="skew_input">0</output>
       </div>
     </aside>
     <main></main>

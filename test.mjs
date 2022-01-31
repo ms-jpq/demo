@@ -6,7 +6,7 @@ import { equal, fail, ok } from "assert";
 import { erf, erf_inv, round } from "./math.mjs";
 import { readFile } from "fs/promises";
 import { spawn } from "child_process";
-import { norm, skewed_norm_pdf } from "./stats.mjs";
+import { norm, skew_norm_pdf } from "./stats.mjs";
 
 const { signal } = (() => {
   const abrt = new AbortController();
@@ -125,9 +125,9 @@ const tst_norms = async () => {
 
     tst_norm();
 
-    const tst_skewed_norm = () => {};
+    const tst_skew_norm = () => {};
 
-    tst_skewed_norm();
+    tst_skew_norm();
   }
 };
 

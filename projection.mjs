@@ -1,5 +1,5 @@
 import { centered_n_scaled_logit_0_1 } from "./math.mjs";
-import { norm, skewed_norm_pdf } from "./stats.mjs";
+import { norm, skew_norm_pdf } from "./stats.mjs";
 
 /**
  * @param {{ slices: number, cursor: number }}
@@ -9,7 +9,7 @@ export const projection = function* ({ slices, cursor }) {
     throw new Error();
   } else {
     /* roughly speaking, the projection is the [relative ratios]
-     * of a uniformly divided [n slices] applied to a skewed normal distribution
+     * of a uniformly divided [n slices] applied to a skew normal distribution
      *
      */
     const naive_dist = norm(cursor, 1);
@@ -21,10 +21,10 @@ export const projection = function* ({ slices, cursor }) {
     // Magic number [5] is added to increase the rate of asymptotic convergency
     const alpha = centered_n_scaled_logit_0_1(cursor) / 5;
 
-    const skewed_pdf = skewed_norm_pdf(naive_dist, alpha);
+    const skew_pdf = skew_norm_pdf(naive_dist, alpha);
 
     for (const [lo, hi] of bounds(-boundary, boundary)(slices)) {
-      yield integrate(skewed_pdf, 2)(lo, hi);
+      yield integrate(skew_pdf, 2)(lo, hi);
     }
   }
 };

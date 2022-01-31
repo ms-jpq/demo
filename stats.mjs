@@ -24,12 +24,12 @@ export const norm = (mu = 0, sigma = 1) => {
 };
 
 /**
- * Skewed Norm Dist
+ * Skew Norm Dist
  *
  * @param {ReturnType<norm>} norm
  * @return {(x: number) => number}
  */
-export const skewed_norm_pdf = (norm, alpha = 0) => {
+export const skew_norm_pdf = (norm, alpha = 0) => {
   const { pdf, cdf } = norm;
   return (x) => 2 * pdf(x) * cdf(alpha * x);
 };

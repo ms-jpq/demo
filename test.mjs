@@ -99,29 +99,36 @@ const tst_norms = async () => {
     )
   ).map(parse);
 
-  const tst_norm = () => {
+  {
     const mean = 0;
     const sd = 1;
     const boundary = 2;
     const reps = 100;
-    const gen = [...seq(-boundary, boundary, boundary / reps)];
 
-    const { pdf, cdf, cdf_inv } = norm(mean, sd);
-    for (const [lhs, rhs] of zip(gen.map(pdf), r_pdf)) {
-      equal(round(lhs, PRECISION), round(rhs, PRECISION));
-    }
-    for (const [lhs, rhs] of zip(gen.map(cdf), r_cdf)) {
-      equal(round(lhs, PRECISION), round(rhs, PRECISION));
-    }
-    for (const [lhs, rhs] of zip(
-      [...seq(0, 1, 1 / reps)].map(cdf_inv),
-      r_cdf_inv
-    )) {
-      equal(round(lhs, PRECISION), round(rhs, PRECISION));
-    }
-  };
+    const tst_norm = () => {
+      const gen = [...seq(-boundary, boundary, boundary / reps)];
 
-  tst_norm();
+      const { pdf, cdf, cdf_inv } = norm(mean, sd);
+      for (const [lhs, rhs] of zip(gen.map(pdf), r_pdf)) {
+        equal(round(lhs, PRECISION), round(rhs, PRECISION));
+      }
+      for (const [lhs, rhs] of zip(gen.map(cdf), r_cdf)) {
+        equal(round(lhs, PRECISION), round(rhs, PRECISION));
+      }
+      for (const [lhs, rhs] of zip(
+        [...seq(0, 1, 1 / reps)].map(cdf_inv),
+        r_cdf_inv
+      )) {
+        equal(round(lhs, PRECISION), round(rhs, PRECISION));
+      }
+    };
+
+    tst_norm();
+
+    const tst_skewed_norm = () => {};
+
+    tst_skewed_norm();
+  }
 };
 
 await tst_norms();

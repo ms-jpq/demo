@@ -92,23 +92,23 @@ const tst_norms = async () => {
     }
   };
 
-  const [r_pdf, r_cdf, r_cdf_inv] = (
+  const [r_pdf, r_cdf, r_cdf_inv, r_s_pdf_0, r_s_pdf_a] = (
     await Promise.all(
-      ["pdf.csv", "cdf.csv", "cdf_inv.csv"].map((csv) =>
-        readFile(join(tmp, csv), "utf8")
+      ["pdf.csv", "cdf.csv", "cdf_inv.csv", "s_pdf_0.csv", "s_pdf_a.csv"].map(
+        (csv) => readFile(join(tmp, csv), "utf8")
       )
     )
   ).map(parse);
 
   {
-    const mean = 0;
+    const mean = 3;
     const sd = 1;
     const boundary = 2;
     const reps = 100;
 
-    const tst_norm = () => {
-      const gen = [...seq(-boundary, boundary, boundary / reps)];
+    const gen = [...seq(-boundary, boundary, boundary / reps)];
 
+    const tst_norm = () => {
       const { pdf, cdf, cdf_inv } = norm(mean, sd);
       for (const [lhs, rhs] of zip(gen.map(pdf), r_pdf)) {
         equal(round(lhs, PRECISION), round(rhs, PRECISION));
@@ -126,7 +126,16 @@ const tst_norms = async () => {
 
     tst_norm();
 
-    const tst_skew_norm = () => {};
+    const tst_skew_norm = () => {
+      const s_pdf_0 = skew_norm_pdf(norm((mean, sd)), 0);
+      const s_pdf_a = skew_norm_pdf(norm((mean, sd)), 0.7);
+      for (const [lhs, rhs] of zip(gen.map(s_pdf_0), r_s_pdf_0)) {
+        equal(round(lhs, PRECISION), round(rhs, PRECISION));
+      }
+      for (const [lhs, rhs] of zip(gen.map(s_pdf_a), r_s_pdf_a)) {
+        equal(round(lhs, PRECISION), round(rhs, PRECISION));
+      }
+    };
 
     tst_skew_norm();
   }

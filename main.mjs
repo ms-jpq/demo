@@ -19,9 +19,9 @@ globalThis.on_update = () => {
   main.style.gridTemplateColumns = [
     ...(function* () {
       for (const [child, col] of it) {
-        yield `${col}fr`;
         if (col) {
           child.style.display = "inherit";
+          yield `${col}fr`;
         } else {
           child.style.display = "none";
         }

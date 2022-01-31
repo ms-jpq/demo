@@ -25,11 +25,13 @@ export const norm = (mu = 0, sigma = 1) => {
 
 /**
  * Skew Norm Dist
+ * WARNING: This forumlation works IFF Z -> Standard Normal Dist
  *
  * @param {ReturnType<norm>} norm
- * @return {(x: number) => number}
+ * @param {number} alpha
+ * @return {(z: number) => number}
  */
 export const skew_norm_pdf = (norm, alpha = 0) => {
   const { pdf, cdf } = norm;
-  return (x) => 2 * pdf(x) * cdf(alpha * x);
+  return (z) => 2 * pdf(z) * cdf(alpha * z);
 };

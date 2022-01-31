@@ -5,20 +5,21 @@ if (!require(sn)) {
   library(sn)
 }
 
-mean <- as.numeric(Sys.getenv("mean"))
-sd <- as.numeric(Sys.getenv("mean"))
-alpha <- as.numeric(Sys.getenv("alpha"))
 
+mean <- as.numeric(Sys.getenv("mean"))
+sd <- as.numeric(Sys.getenv("sd"))
+alpha <- as.numeric(Sys.getenv("alpha"))
 boundary <- as.numeric(Sys.getenv("boundary"))
 reps <- as.numeric(Sys.getenv("reps"))
-gen <- seq(from = -boundary, to = boundary, by = boundary / reps)
 
+
+gen <- seq(from = -boundary, to = boundary, by = boundary / reps)
 pdf <- dnorm(gen, mean = mean, sd = sd)
 cdf <- pnorm(gen, mean = mean, sd = sd)
 cdf_inv <- qnorm(seq(from = 0, to = 1, by = 1 / reps), mean = mean, sd = sd)
+s_pdf_0 <- dsn(gen, xi = mean, omega = sd, alpha = 0)
+s_pdf_a <- dsn(gen, xi = mean, omega = sd, alpha = alpha)
 
-s_pdf_0 <- dsn(gen, tau = mean, omega = sd, alpha = 0)
-s_pdf_a <- dsn(gen, tau = mean, omega = sd, alpha = alpha)
 
 tmp <- "tmp"
 dir.create(tmp)
@@ -30,6 +31,7 @@ out <- function(col, file) {
     row.names = FALSE
   )
 }
+
 
 out(pdf, file = "pdf.csv")
 out(cdf, file = "cdf.csv")

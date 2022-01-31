@@ -8,6 +8,7 @@ import { erf, erf_inv, round } from "./math.mjs";
 import { norm, skew_norm_pdf } from "./stats.mjs";
 import { readFile } from "fs/promises";
 import { spawn } from "child_process";
+import { zip } from "./prelude.mjs";
 
 const { signal } = (() => {
   const abrt = new AbortController();
@@ -29,26 +30,6 @@ const tst_erf = () => {
 };
 
 tst_erf();
-
-/**
- * @param {Iterable<T>[]} its
- * @return {IterableIterator<T>}
- */
-const zip = function* (...its) {
-  const iterators = its.map((i) => i[Symbol.iterator]());
-  while (true) {
-    const acc = [];
-    for (const it of iterators) {
-      const { done, value } = it.next();
-      if (done) {
-        return;
-      } else {
-        acc.push(value);
-      }
-    }
-    yield acc;
-  }
-};
 
 /**
  * @param {number} lo

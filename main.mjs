@@ -1,4 +1,5 @@
 import { projection, projection_inv } from "./projection.mjs";
+import { zip } from "./prelude.mjs";
 
 const main = document.querySelector("main");
 
@@ -13,20 +14,17 @@ globalThis.on_update = () => {
 
   const slices = main.children.length;
   const cursor = (cursor_output.value = parseFloat(cursor_input.value));
-
-  const cols = [...projection({ slices, cursor })];
+  const it = zip(main.children, projection({ slices, visible: 6, cursor }));
 
   main.style.gridTemplateColumns = [
     ...(function* () {
-      for (let i = 0; i < main.children.length; i++) {
-        const col = cols[i];
-        const child = main.children.item(i);
-          yield `${col}fr`;
-        // if (col > hidden_cutoff) {
-        //   child.style.display = "inherit";
-        // } else {
-        //   child.style.display = "none";
-        // }
+      for (const [child, col] of it) {
+        yield `${col}fr`;
+        if (col) {
+          child.style.display = "inherit";
+        } else {
+          child.style.display = "none";
+        }
       }
     })(),
   ].join(" ");

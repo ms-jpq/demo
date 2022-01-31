@@ -1,13 +1,8 @@
-import { projection } from "./projection.js";
-
 var time;
 const main = document.querySelector("main");
 
 const pages_input = document.querySelector("#pages_input");
 const pages_output = document.querySelector("#pages_output");
-
-const hidden_size_input = document.querySelector("#hidden_size_input");
-const hidden_size_output = document.querySelector("#hidden_size_output");
 
 const centre_input = document.querySelector("#centre_input");
 const centre_output = document.querySelector("#centre_output");

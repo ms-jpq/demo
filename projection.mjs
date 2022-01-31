@@ -15,14 +15,15 @@ export const projection = function* ({ slices, visible, cursor }) {
     const mu = (cursor - 1 / 2) * 5;
     const { pdf } = norm(mu, 1);
 
-    const centre = slices / 2;
-    const [lhs, rhs] = [centre - visible, centre + visible];
+    const [centre, horizon] = [slices / 2, visible / 2];
+    const [lhs, rhs] = [centre - horizon, centre + horizon];
+    const it = bounds(-boundary, boundary)(slices);
 
-    for (const [idx, [lo, hi]] of enumerate(
-      bounds(-boundary, boundary)(slices)
-    )) {
+    for (const [idx, [lo, hi]] of enumerate(it, 1)) {
       if (idx >= lhs && idx <= rhs) {
         yield integrate(pdf, 2)(lo, hi);
+      } else {
+        yield 0;
       }
     }
   }

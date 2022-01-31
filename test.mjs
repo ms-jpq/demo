@@ -2,11 +2,12 @@
 
 import { EOL } from "os";
 import { dirname, join } from "path";
+import { env } from "process";
 import { equal, fail, ok } from "assert";
 import { erf, erf_inv, round } from "./math.mjs";
+import { norm, skew_norm_pdf } from "./stats.mjs";
 import { readFile } from "fs/promises";
 import { spawn } from "child_process";
-import { norm, skew_norm_pdf } from "./stats.mjs";
 
 const { signal } = (() => {
   const abrt = new AbortController();
@@ -75,8 +76,8 @@ const tst_norms = async () => {
     spawn(join(cwd, "norm.r"), [], {
       signal,
       cwd,
-      stdio: "inherit",
-      env: { mean, sd, boundary, reps, alpha },
+      stdio: ["ignore", "inherit", "inherit"],
+      env: { ...env, mean, sd, boundary, reps, alpha },
     })
       .once("error", reject)
       .once("exit", resolve);
@@ -133,10 +134,10 @@ const tst_norms = async () => {
       const s_pdf_0 = skew_norm_pdf(norm((mean, sd)), 0);
       const s_pdf_a = skew_norm_pdf(norm((mean, sd)), 0.7);
       for (const [lhs, rhs] of zip(gen.map(s_pdf_0), r_s_pdf_0)) {
-        console.log(round(lhs, PRECISION), round(rhs, PRECISION));
+        equal(round(lhs, PRECISION), round(rhs, PRECISION));
       }
       for (const [lhs, rhs] of zip(gen.map(s_pdf_a), r_s_pdf_a)) {
-        // equal(round(lhs, PRECISION), round(rhs, PRECISION));
+        equal(round(lhs, PRECISION), round(rhs, PRECISION));
       }
     };
 

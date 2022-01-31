@@ -1,5 +1,5 @@
-import { centered_n_scaled_logit_0_1 } from "./math.js";
-import { norm, skewed_norm_pdf } from "./stats.js";
+import { centered_n_scaled_logit_0_1 } from "./math.mjs";
+import { norm, skewed_norm_pdf } from "./stats.mjs";
 
 /**
  * @param {{ slices: number, cursor: number }}

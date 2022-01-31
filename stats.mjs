@@ -1,4 +1,4 @@
-import { erf, erf_inv } from "./math.js";
+import { erf, erf_inv } from "./math.mjs";
 
 /**
  * Standard Norm Dist

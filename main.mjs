@@ -14,7 +14,8 @@ globalThis.on_update = () => {
 
   const slices = main.children.length;
   const cursor = (cursor_output.value = parseFloat(cursor_input.value));
-  const it = zip(main.children, projection({ slices, visible: 6, cursor }));
+  const visible = width / 420;
+  const it = zip(main.children, projection({ slices, visible, cursor }));
 
   main.style.gridTemplateColumns = [
     ...(function* () {

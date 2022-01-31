@@ -5,7 +5,7 @@ import { erf, erf_inv } from "./math.mjs";
  *
  * @param {number} mu
  * @param {number} sigma
- * @return {{ pdf: (x: number) => number, cdf: (x: number) => number, inv_cdf: (p: number) => number }}
+ * @return {{ pdf: (x: number) => number, cdf: (x: number) => number, cdf_inv: (p: number) => number }}
  */
 export const norm = (mu = 0, sigma = 1) => {
   const pdf = (x) => {
@@ -17,10 +17,10 @@ export const norm = (mu = 0, sigma = 1) => {
   const cdf = (x) => {
     return (1 / 2) * (1 + erf((x - mu) / (sigma * Math.sqrt(2))));
   };
-  const inv_cdf = (p) => {
+  const cdf_inv = (p) => {
     return mu + sigma * Math.sqrt(2) * erf_inv(2 * p - 1);
   };
-  return { pdf, cdf, inv_cdf };
+  return { pdf, cdf, cdf_inv };
 };
 
 /**

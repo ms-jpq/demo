@@ -14,8 +14,8 @@ export const projection = function* ({ slices, cursor }) {
      */
     const naive_dist = norm(cursor, 1);
 
-    const { inv_cdf } = naive_dist;
-    const boundary = inv_cdf(1 - 1 / slices);
+    const { cdf_inv } = naive_dist;
+    const boundary = cdf_inv(1 - 1 / slices);
 
     // skew of the distribution, eased using the logit fn
     // Magic number [5] is added to increase the rate of asymptotic convergency

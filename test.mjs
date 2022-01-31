@@ -6,6 +6,7 @@ import { equal, fail, ok } from "assert";
 import { erf, erf_inv, round } from "./math.mjs";
 import { readFile } from "fs/promises";
 import { spawn } from "child_process";
+import { norm, skewed_norm_pdf } from "./stats.mjs";
 
 const { signal } = (() => {
   const abrt = new AbortController();
@@ -28,7 +29,39 @@ const tst_erf = () => {
 
 tst_erf();
 
-const tst_norm = async () => {
+/**
+ * @param {Iterable<T>[]} its
+ * @return {IterableIterator<T>}
+ */
+const zip = function* (...its) {
+  while (true) {
+    const acc = [];
+    for (const it of its) {
+      const i = it[Symbol.iterator]();
+      const { done, value } = i.next();
+      if (done) {
+        return;
+      } else {
+        acc.push(value);
+      }
+    }
+    yield acc;
+  }
+};
+
+/**
+ * @param {number} lo
+ * @param {number} hi
+ * @param {number} step
+ * @return {IterableIterator<number>}
+ */
+const seq = function* (lo, hi, step) {
+  for (let i = lo; i <= hi; i += step) {
+    yield i;
+  }
+};
+
+const tst_norms = async () => {
   const top_lv = dirname(new URL(import.meta.url).pathname);
   const tmp = join(top_lv, "tmp");
   const code = await new Promise((resolve, reject) => {
@@ -64,9 +97,23 @@ const tst_norm = async () => {
     )
   );
 
-  console.log(...parse(pdf_csv));
-  console.log(...parse(cdf_csv));
-  console.log(...parse(cdf_inv_csv));
+  const tst_norm = () => {
+    const mean = 0;
+    const sd = 1;
+    const boundary = 2;
+    const reps = 100;
+    const gen = [...seq(-boundary, boundary, boundary / reps)];
+
+    const { pdf, cdf, cdf_inv } = norm(mean, sd);
+    for (const [lhs, rhs] of zip(gen.map(pdf), pdf_csv)) {
+      equal(round(lhs, PRECISION), round(rhs, PRECISION));
+    }
+    for (const [lhs, rhs] of zip(gen.map(cdf), cdf_csv)) {
+      equal(round(lhs, PRECISION), round(rhs, PRECISION));
+    }
+  };
+
+  tst_norm();
 };
 
-await tst_norm();
+await tst_norms();

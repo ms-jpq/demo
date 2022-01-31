@@ -13,8 +13,7 @@ export const round = (f, decimals) => {
 /**
  * Approx Error Function
  *
- * @param {number} n
- * @return {number}
+ * @type {(_: number) => number}
  */
 export const erf = (() => {
   const p = 0.3275911;
@@ -38,8 +37,7 @@ export const erf = (() => {
 /**
  * Inverse Approx Error Function
  *
- * @param {number} n
- * @return {number}
+ * @type {(_: number) => number}
  */
 export const erf_inv = (() => {
   const P0 = [

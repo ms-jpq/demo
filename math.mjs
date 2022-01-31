@@ -96,9 +96,9 @@ export const erf_inv = (() => {
     } else if (n == 0) {
       return 0;
     } else if (n == 1) {
-      return math.inf;
+      return Infinity;
     } else if (n == -1) {
-      return -math.inf;
+      return -Infinity;
     } else {
       const ndtri = (y) => {
         const s2pi = 2.5066282746310007;

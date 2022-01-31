@@ -34,11 +34,11 @@ tst_erf();
  * @return {IterableIterator<T>}
  */
 const zip = function* (...its) {
+  const iterators = its.map((i) => i[Symbol.iterator]());
   while (true) {
     const acc = [];
-    for (const it of its) {
-      const i = it[Symbol.iterator]();
-      const { done, value } = i.next();
+    for (const it of iterators) {
+      const { done, value } = it.next();
       if (done) {
         return;
       } else {
@@ -108,10 +108,16 @@ const tst_norms = async () => {
 
     const { pdf, cdf, cdf_inv } = norm(mean, sd);
     for (const [lhs, rhs] of zip(gen.map(pdf), r_pdf)) {
-      console.log(round(lhs, PRECISION), round(rhs, PRECISION));
+      equal(round(lhs, PRECISION), round(rhs, PRECISION));
     }
     for (const [lhs, rhs] of zip(gen.map(cdf), r_cdf)) {
-      console.log(round(lhs, PRECISION), round(rhs, PRECISION));
+      equal(round(lhs, PRECISION), round(rhs, PRECISION));
+    }
+    for (const [lhs, rhs] of zip(
+      [...seq(0, 1, 1 / reps)].map(cdf_inv),
+      r_cdf_inv
+    )) {
+      equal(round(lhs, PRECISION), round(rhs, PRECISION));
     }
   };
 

@@ -1,4 +1,16 @@
 /**
+ * Round Floats
+ *
+ * @param {number} f
+ * @param {number} decimals
+ * @return {number}
+ */
+export const round = (f, decimals) => {
+  const pow = Math.pow(10, decimals);
+  return Number(Math.round((f + Number.EPSILON) * pow) / pow);
+};
+
+/**
  * Approx Error Function
  *
  * @param {number} n

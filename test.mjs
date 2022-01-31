@@ -62,11 +62,12 @@ const seq = function* (lo, hi, step) {
 };
 
 const tst_norms = async () => {
-  const top_lv = dirname(new URL(import.meta.url).pathname);
-  const tmp = join(top_lv, "tmp");
+  const cwd = dirname(new URL(import.meta.url).pathname);
+  const tmp = join(cwd, "tmp");
   const code = await new Promise((resolve, reject) => {
-    spawn(join(top_lv, "norm.r"), [], {
+    spawn(join(cwd, "norm.r"), [], {
       signal,
+      cwd,
       stdio: "inherit",
     })
       .once("error", reject)

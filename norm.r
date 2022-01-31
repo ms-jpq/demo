@@ -20,7 +20,12 @@ cdf_inv <- qnorm(seq(from = 0, to = 1, by = 1 / reps), mean = mean, sd = sd)
 tmp <- "tmp"
 dir.create(tmp)
 out <- function(col, file) {
-  write.table(col, file = file.path(file), col.names = FALSE, row.names = FALSE)
+  write.table(
+    col,
+    file = file.path(tmp, file),
+    col.names = FALSE,
+    row.names = FALSE
+  )
 }
 
 out(pdf, file = "pdf.csv")

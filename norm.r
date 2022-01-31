@@ -5,19 +5,20 @@ if (!require(sn)) {
   library(sn)
 }
 
-mean <- 3
-sd <- 1
+mean <- as.numeric(Sys.getenv("mean"))
+sd <- as.numeric(Sys.getenv("mean"))
+alpha <- as.numeric(Sys.getenv("alpha"))
 
-boundary <- 2
-reps <- 100
+boundary <- as.numeric(Sys.getenv("boundary"))
+reps <- as.numeric(Sys.getenv("reps"))
 gen <- seq(from = -boundary, to = boundary, by = boundary / reps)
 
 pdf <- dnorm(gen, mean = mean, sd = sd)
 cdf <- pnorm(gen, mean = mean, sd = sd)
 cdf_inv <- qnorm(seq(from = 0, to = 1, by = 1 / reps), mean = mean, sd = sd)
 
-s_pdf_0 <- dsn(gen, tau = mean, omega = sd, alpha = 1)
-s_pdf_a <- dsn(gen, tau = mean, omega = sd, alpha = 0.7)
+s_pdf_0 <- dsn(gen, tau = mean, omega = sd, alpha = 0)
+s_pdf_a <- dsn(gen, tau = mean, omega = sd, alpha = alpha)
 
 tmp <- "tmp"
 dir.create(tmp)

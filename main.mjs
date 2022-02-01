@@ -1,5 +1,6 @@
 import { projection, projection_inv } from "./projection.mjs";
 import { zip } from "./prelude.mjs";
+import { round } from "./math.mjs";
 
 const main = document.querySelector("main");
 
@@ -9,13 +10,28 @@ const pages_output = document.querySelector("#pages_output");
 const cursor_input = document.querySelector("#cursor_input");
 const cursor_output = document.querySelector("#cursor_output");
 
-globalThis.on_update = () => {
-  const { width } = main.getBoundingClientRect();
+const visible_output = document.querySelector("#visible_output");
 
+const visible = () => {
+  const { width } = main.getBoundingClientRect();
+  const visible = width / 120;
+  return visible;
+};
+
+new ResizeObserver(() => {
+  visible_output.value = visible();
+}).observe(main);
+
+
+globalThis.on_update = () => {
   const slices = main.children.length;
-  const cursor = (cursor_output.value = parseFloat(cursor_input.value));
-  const visible = width / 420;
-  const it = zip(main.children, projection({ slices, visible, cursor }));
+  const cursor = parseFloat(cursor_input.value);
+  cursor_output.value = round(cursor * slices, 2);
+
+  const it = zip(
+    main.children,
+    projection({ slices, visible: visible(), cursor })
+  );
 
   main.style.gridTemplateColumns = [
     ...(function* () {
@@ -38,7 +54,9 @@ globalThis.on_pages = () => {
   main.replaceChildren(
     ...(function* () {
       for (let i = 0; i < pages; i++) {
-        yield document.createElement("div");
+        const div = document.createElement("div");
+        div.textContent = i;
+        yield div;
       }
     })()
   );

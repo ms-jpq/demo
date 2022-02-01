@@ -24,22 +24,7 @@
         </label>
         <output id="pages_output" for="pages_input">0</output>
       </div>
-      <div>
-        <label for="hidden_size_input">
-          Hide:
-          <input
-            id="hidden_size_input"
-            type="range"
-            step="0.0001"
-            min="0"
-            max="0.003"
-            value="0"
-            onchange="on_update()"
-            oninput="on_update()"
-          />
-        </label>
-        <output id="hidden_size_output" for="hidden_size_input">0</output>
-      </div>
+      <div>Visible: <output id="visible_output">0</output></div>
       <div>
         <label for="cursor_input">
           Cursor:
@@ -54,7 +39,7 @@
             oninput="on_update()"
           />
         </label>
-        <output id="cursor_output" for="spread_input">0.5</output>
+        <output id="cursor_output" for="spread_input">0</output>
       </div>
     </aside>
     <main></main>

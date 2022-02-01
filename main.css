@@ -51,4 +51,5 @@ main > div {
   border-left: 1px solid;
   border-right: 1px solid;
   height: 80%;
+  background-color: cyan;
 }

@@ -27,19 +27,30 @@ export const projection = ({ slices, visible, cursor }) => {
     const mu = normalized * sigma;
     const { pdf } = norm(mu, sigma);
 
-    const [centre, horizon] = [slices * cursor, visible / 2];
-    const [lhs, rhs] = [centre - horizon, centre + horizon];
     const it = bounds(-boundary, boundary)(slices);
 
     const line = [
       ...(function* () {
+        const centre = slices * cursor;
+        const horizon = visible / 2;
+        const left_edge = centre - horizon;
+
+        const [padding_lhs, padding_rhs] = [
+          centre - horizon * 2,
+          centre + horizon * 2,
+        ];
+
+        let seen = 0;
         for (const [idx, [lo, hi]] of enumerate(it, 1)) {
           const size = integrate(pdf, 2)(lo, hi);
           const mode = (() => {
-            if (idx >= lhs && idx <= rhs) {
+            if (idx >= left_edge && seen <= visible) {
+              seen += 1;
               return MODE.SHOWN;
-            } else {
+            } else if (idx >= padding_lhs && idx <= padding_rhs) {
               return MODE.PADDING;
+            } else {
+              return MODE.HIDDEN;
             }
           })();
 
@@ -51,7 +62,7 @@ export const projection = ({ slices, visible, cursor }) => {
       (acc, [mode, size]) => acc + (mode !== MODE.HIDDEN ? size : 0),
       0
     );
-    return line.map(([mode, size]) => [mode, size / sum_of_visible]);
+    return line.map(([mode, size]) => [mode, size / sum_of_visible * 100]);
   }
 };
 

@@ -16,8 +16,8 @@ export const enumerate = function* (it, start = 0) {
 };
 
 /**
- * @param {Iterable<T>[]} its
- * @return {IterableIterator<T>}
+ * @param {Iterable<any>[]} its
+ * @return {IterableIterator<any[]>}
  */
 export const zip = function* (...its) {
   const iterators = its.map((i) => i[Symbol.iterator]());

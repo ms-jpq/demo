@@ -19,10 +19,6 @@ const visible = () => {
   return visible;
 };
 
-new ResizeObserver(() => {
-  visible_output.value = visible();
-}).observe(main);
-
 globalThis.on_update = () => {
   const slices = main.children.length;
   const cursor = parseFloat(cursor_input.value);
@@ -35,12 +31,27 @@ globalThis.on_update = () => {
 
   main.style.gridTemplateColumns = [
     ...(function* () {
-      for (const [child, [shown, col]] of it) {
-        if (shown) {
-          child.style.display = "inherit";
-          yield `${col}fr`;
-        } else {
-          child.style.display = "none";
+      for (const [child, [mode, width]] of it) {
+        switch (mode) {
+          case MODE.SHOWN:
+            child.style.display = "inherit";
+            yield `${width}fr`;
+            for (const c of child.children) {
+              c.style.display = "inherit";
+            }
+            break;
+          case MODE.PADDING:
+            child.style.display = "inherit";
+            for (const c of child.children) {
+              c.style.display = "none";
+            }
+            break;
+          case MODE.HIDDEN:
+            child.style.display = "none";
+            for (const c of child.children) {
+              c.style.display = "none";
+            }
+            break;
         }
       }
     })(),
@@ -65,3 +76,8 @@ globalThis.on_pages = () => {
 
   globalThis.on_update();
 };
+
+new ResizeObserver(() => {
+  visible_output.value = visible();
+  globalThis.on_update();
+}).observe(main);

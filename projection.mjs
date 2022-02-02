@@ -22,7 +22,9 @@ export const projection = ({ slices, visible, cursor }) => {
     const boundary = cdf_inv(1 - 1 / Math.max(1, slices)) * 2;
 
     // mu move about 1 sigma
-    const [mu, sigma] = [(cursor - 1 / 2) * 2, sigma];
+    const sigma = 1;
+    const normalized = (cursor - 1 / 2) * 2;
+    const mu = normalized * sigma;
     const { pdf } = norm(mu, sigma);
 
     const [centre, horizon] = [slices * cursor, visible / 2];
@@ -33,16 +35,23 @@ export const projection = ({ slices, visible, cursor }) => {
       ...(function* () {
         for (const [idx, [lo, hi]] of enumerate(it, 1)) {
           const size = integrate(pdf, 2)(lo, hi);
-          if (idx >= lhs && idx <= rhs) {
-            yield [true, size];
-          } else {
-            yield [false, size];
-          }
+          const mode = (() => {
+            if (idx >= lhs && idx <= rhs) {
+              return MODE.SHOWN;
+            } else {
+              return MODE.PADDING;
+            }
+          })();
+
+          yield [mode, size];
         }
       })(),
     ];
-    const tot = line.reduce((a, [s, c]) => (a + s ? c : 0), 0);
-    return line.map(([s, f]) => [s, f / tot]);
+    const sum_of_visible = line.reduce(
+      (acc, [mode, size]) => acc + (mode !== MODE.HIDDEN ? size : 0),
+      0
+    );
+    return line.map(([mode, size]) => [mode, size / sum_of_visible]);
   }
 };
 

@@ -14,14 +14,13 @@ const visible_output = document.querySelector("#visible_output");
 
 const visible = () => {
   const { width } = main.getBoundingClientRect();
-  const visible = width / 120;
+  const visible = width / 240;
   return visible;
 };
 
 new ResizeObserver(() => {
   visible_output.value = visible();
 }).observe(main);
-
 
 globalThis.on_update = () => {
   const slices = main.children.length;
@@ -35,8 +34,8 @@ globalThis.on_update = () => {
 
   main.style.gridTemplateColumns = [
     ...(function* () {
-      for (const [child, col] of it) {
-        if (col) {
+      for (const [child, [shown, col]] of it) {
+        if (shown) {
           child.style.display = "inherit";
           yield `${col}fr`;
         } else {
@@ -55,7 +54,9 @@ globalThis.on_pages = () => {
     ...(function* () {
       for (let i = 0; i < pages; i++) {
         const div = document.createElement("div");
-        div.textContent = i;
+        div.appendChild(document.createTextNode(i.toString()));
+        div.appendChild(document.createElement("br"));
+        div.appendChild(document.createTextNode("-".repeat(9)));
         yield div;
       }
     })()

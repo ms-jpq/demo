@@ -1,6 +1,7 @@
-import { projection, projection_inv } from "./projection.mjs";
-import { zip } from "./prelude.mjs";
+import { MODE, projection, projection_inv } from "./projection.mjs";
+
 import { round } from "./math.mjs";
+import { zip } from "./prelude.mjs";
 
 const main = document.querySelector("main");
 

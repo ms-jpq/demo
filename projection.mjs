@@ -1,6 +1,7 @@
-import { norm } from "./stats.mjs";
-import { integrate, bounds } from "./calculus.mjs";
+import { bounds, integrate } from "./calculus.mjs";
+
 import { enumerate } from "./prelude.mjs";
+import { norm } from "./stats.mjs";
 
 export const MODE = Object.freeze({
   SHOWN: Symbol("shown"),

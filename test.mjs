@@ -1,11 +1,12 @@
 #!/usr/bin/env node
 
-import { EOL } from "os";
 import { dirname, join } from "path";
-import { env } from "process";
 import { equal, fail, ok } from "assert";
 import { erf, erf_inv, round } from "./math.mjs";
 import { norm, skew_norm_pdf } from "./stats.mjs";
+
+import { EOL } from "os";
+import { env } from "process";
 import { readFile } from "fs/promises";
 import { spawn } from "child_process";
 import { zip } from "./prelude.mjs";

@@ -24,10 +24,8 @@ globalThis.on_update = () => {
   const cursor = parseFloat(cursor_input.value);
   cursor_output.value = round(cursor * slices, 2);
 
-  const it = zip(
-    main.children,
-    projection({ slices, visible: visible(), cursor })
-  );
+  const vis = visible();
+  const it = zip(main.children, projection({ slices, visible: vis, cursor }));
 
   main.style.gridTemplateColumns = [
     ...(function* () {
@@ -35,16 +33,17 @@ globalThis.on_update = () => {
         switch (mode) {
           case MODE.SHOWN:
             child.style.display = "inherit";
-            yield `${width}fr`;
             for (const c of child.children) {
               c.style.display = "inherit";
             }
+            yield `${width}fr`;
             break;
           case MODE.PADDING:
             child.style.display = "inherit";
             for (const c of child.children) {
               c.style.display = "none";
             }
+            yield `${width}fr`;
             break;
           case MODE.HIDDEN:
             child.style.display = "none";
@@ -66,9 +65,10 @@ globalThis.on_pages = () => {
     ...(function* () {
       for (let i = 0; i < pages; i++) {
         const div = document.createElement("div");
-        div.appendChild(document.createTextNode(i.toString()));
-        div.appendChild(document.createElement("br"));
-        div.appendChild(document.createTextNode("-".repeat(9)));
+        const span = div.appendChild(document.createElement("span"));
+        span.appendChild(document.createTextNode(i.toString()));
+        span.appendChild(document.createElement("br"));
+        span.appendChild(document.createTextNode("-".repeat(9)));
         yield div;
       }
     })()

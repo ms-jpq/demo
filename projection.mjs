@@ -15,6 +15,7 @@ export const MODE = Object.freeze({
  */
 export const projection = ({
   main_size,
+  hidden_size,
   min_size,
   max_size,
   padding,
@@ -24,39 +25,45 @@ export const projection = ({
   if (cursor < 0 || cursor > 1) {
     throw new Error();
   } else {
-    const factor = main_size / max_size / 2;
-    const { cdf_inv } = norm();
-    const boundary = cdf_inv(0.999) * factor;
-
     const regions = padding + slices + padding;
-    const it = bounds(-boundary, boundary)(regions);
+    const centered_cursor = (cursor - 1 / 2) * 2;
 
     const sigma = 1;
-    const mu = sigma * (cursor - 1 / 2) * factor;
-    const { pdf } = norm(mu, sigma);
+    const boundary = sigma * 3;
+    const mu = sigma * centered_cursor * 2;
 
     const scores = [
       ...(function* () {
+        const { pdf } = norm(mu, sigma);
+        const it = bounds(-boundary, boundary)(regions);
+
+        const centre = regions * cursor;
+        const horizon = main_size / max_size / 2;
+        const [lhs, rhs] = [centre - horizon, centre + horizon];
+
         for (const [idx, [lo, hi]] of enumerate(it, 0)) {
           const is_padding = idx < padding || idx >= slices + padding;
+          const centrality = idx >= lhs && idx <= rhs;
           const width = integrate(pdf, 6)(lo, hi);
-          yield [is_padding, width];
+          yield [is_padding, centrality, width];
         }
       })(),
     ];
 
-    const pre_sum = scores.reduce((sum, [_, width]) => sum + width, 0);
+    const pre_sum = scores.reduce((sum, [, , width]) => sum + width, 0);
 
-    const normalized_1 = scores.map(([is_padding, width]) => {
+    const real_sizes = scores.map(([is_padding, centrality, width]) => {
       const normalized = width / pre_sum;
       const slice_size = main_size * normalized;
 
       const mode = (() => {
-        if (slice_size < min_size) {
+        if (slice_size < hidden_size) {
           return MODE.HIDDEN;
         } else if (is_padding) {
           return MODE.PADDING;
-        } else if (slice_size > max_size) {
+        } else if (centrality) {
+          return MODE.SHOWN;
+        } else if (slice_size >= min_size) {
           return MODE.SHOWN;
         } else {
           return MODE.PADDING;
@@ -66,16 +73,12 @@ export const projection = ({
       return [mode, mode === MODE.HIDDEN ? 0 : normalized];
     });
 
-    const post_sum = normalized_1.reduce((sum, [, width]) => sum + width, 0);
+    const post_sum = real_sizes.reduce((sum, [, width]) => sum + width, 0);
 
-    const normalized_2 = normalized_1.map(([mode, width]) => [
+    const normalized_2 = real_sizes.map(([mode, width]) => [
       mode,
       (width / post_sum) * 100,
     ]);
-
-    console.log("l1", scores);
-    console.log("n1", normalized_1);
-    console.log("n2", normalized_2);
 
     return normalized_2;
   }

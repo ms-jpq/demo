@@ -11,8 +11,8 @@ const pages_output = document.querySelector("#pages_output");
 const cursor_input = document.querySelector("#cursor_input");
 const cursor_output = document.querySelector("#cursor_output");
 
-const padding = 5;
-const [min_size, max_size] = [6, 160];
+const padding = 6;
+const [hidden_size, min_size, max_size] = [6, 120, 240];
 
 globalThis.on_update = () => {
   const { width: main_size } = main.getBoundingClientRect();
@@ -22,7 +22,15 @@ globalThis.on_update = () => {
 
   const it = zip(
     main.children,
-    projection({ main_size, min_size, max_size, padding, slices, cursor })
+    projection({
+      main_size,
+      hidden_size,
+      min_size,
+      max_size,
+      padding,
+      slices,
+      cursor,
+    })
   );
 
   main.style.gridTemplateColumns = [

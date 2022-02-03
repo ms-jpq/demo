@@ -27,27 +27,29 @@ export const projection = ({
   if (cursor < 0 || cursor > 1) {
     throw new Error();
   } else {
+    const regions = padding + slices + padding;
+    const it = bounds(-boundary, boundary)(regions);
+
     const sigma = 1;
     const mu = sigma * (cursor - 1 / 2) * 2;
     const { pdf } = norm(mu, sigma);
-
-    const regions = padding * 2 + slices;
-    const it = bounds(-boundary, boundary)(regions);
 
     const line = [
       ...(function* () {
         for (const [idx, [lo, hi]] of enumerate(it, 0)) {
           const is_padding = idx < padding || idx >= slices + padding;
-          const width = integrate(pdf, 2)(lo, hi);
+          const width = integrate(pdf, 6)(lo, hi);
           yield [is_padding, width];
         }
       })(),
     ];
 
     const pre_sum = line.reduce((sum, [_, width]) => sum + width, 0);
+
     const normalized_1 = line.map(([is_padding, width]) => {
       const normalized = width / pre_sum;
       const slice_size = main_size * normalized;
+
       const mode = (() => {
         if (slice_size < min_size) {
           return MODE.HIDDEN;
@@ -60,13 +62,10 @@ export const projection = ({
         }
       })();
 
-      return [mode, normalized];
+      return [mode, mode === MODE.HIDDEN ? 0 : normalized];
     });
 
-    const post_sum = line.reduce(
-      (sum, [mode, width]) => sum + (mode !== MODE.HIDDEN ? width : width),
-      0
-    );
+    const post_sum = normalized_1.reduce((sum, [, width]) => sum + width, 0);
 
     const normalized_2 = normalized_1.map(([mode, width]) => [
       mode,

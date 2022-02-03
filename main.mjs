@@ -20,12 +20,16 @@ const visible = () => {
 };
 
 globalThis.on_update = () => {
+  const { width: main_size } = main.getBoundingClientRect();
   const slices = main.children.length;
   const cursor = parseFloat(cursor_input.value);
   cursor_output.value = round(cursor * slices, 2);
 
   const vis = visible();
-  const it = zip(main.children, projection({ slices, visible: vis, cursor }));
+  const it = zip(
+    main.children,
+    projection({ main_size, slices, visible: vis, cursor })
+  );
 
   main.style.gridTemplateColumns = [
     ...(function* () {
@@ -60,9 +64,13 @@ globalThis.on_update = () => {
 globalThis.on_pages = () => {
   const pages = parseInt(pages_input.value);
   pages_output.value = pages;
+  const padding = visible() / 2;
 
   main.replaceChildren(
     ...(function* () {
+      for (let i = 0; i < padding; i++) {
+        yield document.createElement("div");
+      }
       for (let i = 0; i < pages; i++) {
         const div = document.createElement("div");
         const span = div.appendChild(document.createElement("span"));
@@ -70,6 +78,9 @@ globalThis.on_pages = () => {
         span.appendChild(document.createElement("br"));
         span.appendChild(document.createTextNode("-".repeat(9)));
         yield div;
+      }
+      for (let i = 0; i < padding; i++) {
+        yield document.createElement("div");
       }
     })()
   );

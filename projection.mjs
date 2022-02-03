@@ -9,22 +9,19 @@ export const MODE = Object.freeze({
   HIDDEN: Symbol("hidden"),
 });
 
+const { cdf_inv } = norm();
+const boundary = cdf_inv(0.9999);
+
 /**
- * @param {{ slices: number, visible: number, cursor: number }}
+ * @param {{ main_size: number, slices: number, visible: number, cursor: number }}
  * @return {IterableIterator<[MODE[keyof MODE], number]>}
  */
-export const projection = ({ slices, visible, cursor }) => {
+export const projection = ({ main_size, slices, visible, cursor }) => {
   if (cursor < 0 || cursor > 1) {
     throw new Error();
   } else {
-    // integrate over (2 * RHS tail of distribution)
-    const { cdf_inv } = norm();
-    const boundary = cdf_inv(1 - 1 / Math.max(1, slices)) * 2;
-
-    // mu move about 1 sigma
     const sigma = 1;
-    const normalized = (cursor - 1 / 2) * 2;
-    const mu = normalized * sigma;
+    const mu = sigma * (cursor - 1 / 2) * 2;
     const { pdf } = norm(mu, sigma);
 
     const it = bounds(-boundary, boundary)(slices);
@@ -33,36 +30,31 @@ export const projection = ({ slices, visible, cursor }) => {
       ...(function* () {
         const centre = slices * cursor;
         const horizon = visible / 2;
-        const left_edge = centre - horizon;
-
-        const [padding_lhs, padding_rhs] = [
-          centre - horizon * 2,
-          centre + horizon * 2,
-        ];
-
-        let seen = 0;
-        for (const [idx, [lo, hi]] of enumerate(it, 1)) {
-          const size = integrate(pdf, 2)(lo, hi);
-          const mode = (() => {
-            if (idx >= left_edge && seen <= visible) {
-              seen += 1;
-              return MODE.SHOWN;
-            } else if (idx >= padding_lhs && idx <= padding_rhs) {
-              return MODE.PADDING;
-            } else {
-              return MODE.HIDDEN;
-            }
-          })();
-
-          yield [mode, size];
+        for (const [idx, [lo, hi]] of enumerate(it, 0)) {
+          const width = integrate(pdf, 2)(lo, hi);
+          if (idx < centre - horizon || idx > centre + horizon) {
+            yield [MODE.PADDING, width];
+          } else {
+            yield [MODE.SHOWN, width];
+          }
         }
       })(),
     ];
-    const sum_of_visible = line.reduce(
-      (acc, [mode, size]) => acc + (mode !== MODE.HIDDEN ? size : 0),
+    const pre_sum = line.reduce((sum, [_, width]) => sum + width, 0);
+    const normalized_1 = line.map(([mode, width]) => {
+      const normalized = width / pre_sum;
+      const adjusted_mode = main_size * normalized < 20 ? mode : MODE.HIDDEN;
+      return [adjusted_mode, normalized];
+    });
+    const post_sum = line.reduce(
+      (sum, [mode, width]) => sum + (mode !== MODE.HIDDEN ? width : width),
       0
     );
-    return line.map(([mode, size]) => [mode, size / sum_of_visible * 100]);
+    const normalized_2 = normalized_1.map(([mode, width]) => [
+      mode,
+      (width / post_sum) * 100,
+    ]);
+    return normalized_2;
   }
 };
 

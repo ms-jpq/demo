@@ -11,14 +11,14 @@ const pages_output = document.querySelector("#pages_output");
 const cursor_input = document.querySelector("#cursor_input");
 const cursor_output = document.querySelector("#cursor_output");
 
-const padding = 10;
+const padding = 5;
 const [min_size, max_size] = [10, 240];
 
 globalThis.on_update = () => {
   const { width: main_size } = main.getBoundingClientRect();
   const slices = main.children.length;
   const cursor = parseFloat(cursor_input.value);
-  cursor_output.value = round(cursor * slices + padding * 2, 2);
+  cursor_output.value = round(cursor * slices, 2);
 
   const it = zip(
     main.children,

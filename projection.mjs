@@ -9,9 +9,6 @@ export const MODE = Object.freeze({
   HIDDEN: Symbol("hidden"),
 });
 
-const { cdf_inv } = norm();
-const boundary = cdf_inv(0.9999);
-
 /**
  * @param {{ main_size: number, min_size: number, max_size: number, padding: number, slices: number, cursor: number }}
  * @return {IterableIterator<[MODE[keyof MODE], number]>}
@@ -27,14 +24,18 @@ export const projection = ({
   if (cursor < 0 || cursor > 1) {
     throw new Error();
   } else {
+    const factor = main_size / max_size / 2;
+    const { cdf_inv } = norm();
+    const boundary = cdf_inv(0.999) * factor;
+
     const regions = padding + slices + padding;
     const it = bounds(-boundary, boundary)(regions);
 
     const sigma = 1;
-    const mu = sigma * (cursor - 1 / 2) * 2;
+    const mu = sigma * (cursor - 1 / 2) * factor;
     const { pdf } = norm(mu, sigma);
 
-    const line = [
+    const scores = [
       ...(function* () {
         for (const [idx, [lo, hi]] of enumerate(it, 0)) {
           const is_padding = idx < padding || idx >= slices + padding;
@@ -44,9 +45,9 @@ export const projection = ({
       })(),
     ];
 
-    const pre_sum = line.reduce((sum, [_, width]) => sum + width, 0);
+    const pre_sum = scores.reduce((sum, [_, width]) => sum + width, 0);
 
-    const normalized_1 = line.map(([is_padding, width]) => {
+    const normalized_1 = scores.map(([is_padding, width]) => {
       const normalized = width / pre_sum;
       const slice_size = main_size * normalized;
 
@@ -71,6 +72,10 @@ export const projection = ({
       mode,
       (width / post_sum) * 100,
     ]);
+
+    console.log("l1", scores);
+    console.log("n1", normalized_1);
+    console.log("n2", normalized_2);
 
     return normalized_2;
   }

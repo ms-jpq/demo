@@ -47,7 +47,7 @@ main {
   align-items: center;
 }
 
-main > div {
+main > * {
   border-left: 1px solid;
   border-right: 1px solid;
   height: 80%;

@@ -11,17 +11,18 @@ const pages_output = document.querySelector("#pages_output");
 const cursor_input = document.querySelector("#cursor_input");
 const cursor_output = document.querySelector("#cursor_output");
 
+const padding = 10;
 const [min_size, max_size] = [10, 240];
 
 globalThis.on_update = () => {
   const { width: main_size } = main.getBoundingClientRect();
   const slices = main.children.length;
   const cursor = parseFloat(cursor_input.value);
-  cursor_output.value = round(cursor * slices, 2);
+  cursor_output.value = round(cursor * slices + padding * 2, 2);
 
   const it = zip(
     main.children,
-    projection({ main_size, min_size, max_size, slices, cursor })
+    projection({ main_size, min_size, max_size, padding, slices, cursor })
   );
 
   main.style.gridTemplateColumns = [
@@ -60,10 +61,10 @@ globalThis.on_pages = () => {
 
   main.replaceChildren(
     ...(function* () {
-      // for (let i = 0; i < padding; i++) {
-      //   yield document.createElement("div");
-      // }
-      for (let i = 0; i < pages; i++) {
+      for (let i = 0; i < padding; i++) {
+        yield document.createElement("div");
+      }
+      for (let i = 1; i <= pages; i++) {
         const div = document.createElement("div");
         const span = div.appendChild(document.createElement("span"));
         span.appendChild(document.createTextNode(i.toString()));
@@ -71,9 +72,9 @@ globalThis.on_pages = () => {
         span.appendChild(document.createTextNode("-".repeat(9)));
         yield div;
       }
-      // for (let i = 0; i < padding; i++) {
-      //   yield document.createElement("div");
-      // }
+      for (let i = 0; i < padding; i++) {
+        yield document.createElement("div");
+      }
     })()
   );
 

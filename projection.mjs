@@ -13,13 +13,14 @@ const { cdf_inv } = norm();
 const boundary = cdf_inv(0.9999);
 
 /**
- * @param {{ main_size: number, min_size: number, max_size: number, slices: number, cursor: number }}
+ * @param {{ main_size: number, min_size: number, max_size: number, padding: number, slices: number, cursor: number }}
  * @return {IterableIterator<[MODE[keyof MODE], number]>}
  */
 export const projection = ({
   main_size,
   min_size,
   max_size,
+  padding,
   slices,
   cursor,
 }) => {
@@ -30,23 +31,22 @@ export const projection = ({
     const mu = sigma * (cursor - 1 / 2) * 2;
     const { pdf } = norm(mu, sigma);
 
-    const it = bounds(-boundary, boundary)(slices);
+    const regions = padding * 2 + slices;
+    const it = bounds(-boundary, boundary)(regions);
 
     const line = [
       ...(function* () {
-        const centre = slices * cursor;
-        const horizon = main_size / max_size;
-
         for (const [idx, [lo, hi]] of enumerate(it, 0)) {
+          const mode =
+            idx < padding || idx >= slices + padding
+              ? MODE.PADDING
+              : MODE.SHOWN;
           const width = integrate(pdf, 2)(lo, hi);
-          if (idx < centre - horizon || idx > centre + horizon) {
-            yield [MODE.PADDING, width];
-          } else {
-            yield [MODE.SHOWN, width];
-          }
+          yield [mode, width];
         }
       })(),
     ];
+
     const pre_sum = line.reduce((sum, [_, width]) => sum + width, 0);
     const normalized_1 = line.map(([mode, width]) => {
       const normalized = width / pre_sum;
